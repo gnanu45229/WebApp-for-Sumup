@@ -1,0 +1,26 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title th:text="${pageTitle} ?: 'Dashboard'"></title>
+  <link th:href="@{/css/app.css}" rel="stylesheet"/>
+</head>
+<body>
+<header class="topbar"><h1>SumUp Admin</h1></header>
+
+<div class="page">
+  <aside class="sidebar" th:with="path=${#httpServletRequest.requestURI}">
+    <a th:href="@{/dashboard}" th:classappend="${path.startsWith('/dashboard')} ? 'active'">Dashboard</a>
+    <a th:href="@{/users}"     th:classappend="${path.startsWith('/users')} ? 'active'">Users</a>
+    <a th:href="@{/groups}"    th:classappend="${path.startsWith('/groups')} ? 'active'">Groups</a>
+  </aside>
+
+  <main class="content" th:fragment="layout(content)">
+    <!-- content slot -->
+    <div th:insert="${content}">Default content</div>
+  </main>
+</div>
+
+<footer class="footer">© 2025 SumUp</footer>
+</body>
+</html>

@@ -10,15 +10,20 @@
 	home page
 
 	<fieldset>
-		<form th:action="@{/submit}" th:object="${user}" method="post">
+		<form th:action="@{/submit}" th:object="${userForm}" method="post">
 			<label>First Name</label><input type="text" th:field="*{fname}" /><br>
 			<label>Last Name</label><input type="text" th:field="*{lname}" /><br>
 			<label>Mobile</label><input type="text" th:field="*{mobile}" />
+			<label>Enter alias</label><input type="text" th:field="*{alias}" /><br>
+			<lable>Email</lable>><input type="text" th:field="*{email}" /><br>
 			<label>Password</label><input type="text" th:field="*{password}" />
 			<button type="submit">form submit</button>
+			<script th:if="${error!=null}" th:inline="javascript">
+				alert("Alias already exists, please choose another one");
+			</script>
 		</form>
 
-	</fieldset>
-</body>
+	</fieldset >
+</body >
 
-</html>
+</html >

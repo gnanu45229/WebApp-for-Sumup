@@ -1,13 +1,98 @@
-
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <title>Submitted Data</title>
+  <meta charset="UTF-8" />
+  <title>SumUp</title>
+  <style>
+    .row { display:flex; gap:8px; margin:6px 0; }
+    .row input { flex:1; }
+    .alias-tools { margin:8px 0; }
+  </style>
 </head>
 <body>
-    <h1>Submitted Information</h1>
-    <p>First Name: <span th:text="${submittedUser.fname}"></span></p>
-    <p>Last Name: <span th:text="${submittedUser.lname}"></span></p>
-    
+  <h1>USER ACCOUNT CREATED</h1>
+
+  <fieldset>
+    <legend>Creating group</legend>
+
+    <form th:action="@{/createGroups}" th:object="${form}" method="post" id="groupForm">
+      <label>Group Name:</label>
+      <input type="text" th:field="*{groupName}" /><br/>
+
+      <!-- ALIASES UI (multiple inputs, not directly bound) -->
+      <label>Enter Aliases:</label>
+      <div id="aliasesContainer">
+        <!-- one initial alias row -->
+        <div class="row">
+          <input type="text" class="alias-field" placeholder="Alias" />
+          <button type="button" class="remove-alias" aria-label="Remove alias">&times;</button>
+        </div>
+      </div>
+
+      <div class="alias-tools">
+        <button type="button" id="addAlias">+ Add alias</button>
+      </div>
+
+      <!-- Hidden bound field that will receive the joined string -->
+      <input type="hidden" th:field="*{alias}" id="aliasJoined" />
+
+      <label>Enter ROI</label>
+      <input type="text" th:field="*{roi}" /><br/>
+
+      <label>Start date</label>
+      <input type="date" th:field="*{startDate}" /><br/>
+
+      <label>End date</label>
+      <input type="date" th:field="*{endDate}" /><br/>
+	  <label>Sum Up Amount</label>
+	  <input type="number" th:field="*{sumAmount}" /><br/>	
+      <button type="submit">Submit</button>
+    </form>
+  </fieldset>
+
+  <script>
+    const aliasesContainer = document.getElementById('aliasesContainer');
+    const addBtn = document.getElementById('addAlias');
+    const form = document.getElementById('groupForm');
+    const aliasJoined = document.getElementById('aliasJoined');
+
+    function addAliasRow(value = '') {
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `
+        <input type="text" class="alias-field" placeholder="Alias" value="${value}">
+        <button type="button" class="remove-alias" aria-label="Remove alias">&times;</button>
+      `;
+      aliasesContainer.appendChild(row);
+    }
+
+    // Add new alias row
+    addBtn.addEventListener('click', () => addAliasRow());
+
+    // Remove alias row (event delegation)
+    aliasesContainer.addEventListener('click', (e) => {
+      if (e.target.classList.contains('remove-alias')) {
+        const row = e.target.closest('.row');
+        if (row) row.remove();
+      }
+    });
+
+    // Before submit: join alias inputs -> hidden bound field
+    form.addEventListener('submit', (e) => {
+      const values = Array.from(aliasesContainer.querySelectorAll('.alias-field'))
+        .map(i => i.value.trim())
+        .filter(v => v.length > 0);
+
+      if (values.length === 0) {
+        e.preventDefault();
+        alert('Please add at least one alias.');
+        return;
+      }
+
+      // join as comma-separated string (change delimiter if you want)
+      aliasJoined.value = values.join(',');
+      // proceed with normal submit
+    });
+  </script>
 </body>
 </html>

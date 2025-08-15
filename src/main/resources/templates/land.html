@@ -1,9 +1,130 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		Gnanu
-	</head>
-	<body>
-		created a group
-	</body>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Dynamic Members Form</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; padding: 24px; }
+    .row { display: grid; grid-template-columns: 1fr 120px 160px auto; gap: 8px; margin-bottom: 8px; }
+    .row input, .row select { padding: 8px; }
+    .row .remove { cursor: pointer; }
+    fieldset { border: 1px solid #ddd; padding: 12px; border-radius: 8px; }
+    legend { padding: 0 6px; }
+    .actions { margin-top: 12px; display: flex; gap: 8px; }
+    .muted { color: #666; font-size: 0.9em; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <h1>Family Registration</h1>
+
+  <form id="familyForm" action="/submit" method="POST">
+    <label>
+      Account Holder Name
+      <input type="text" name="holderName" required />
+    </label>
+
+    <fieldset style="margin-top:16px;">
+      <legend>Members</legend>
+
+      <!-- Container where member rows are appended -->
+      <div id="members"></div>
+
+      <div class="actions">
+        <button type="button" id="addMember">+ Add member</button>
+      </div>
+
+      <!-- Hidden input that will contain all members as JSON on submit -->
+      <input type="hidden" name="membersJson" id="membersJson" />
+      <div class="muted">We’ll bundle all members into <code>membersJson</code> for submission.</div>
+    </fieldset>
+
+    <div class="actions">
+      <button type="submit">Submit Form</button>
+      <button type="reset" id="resetForm">Reset</button>
+    </div>
+  </form>
+
+  <script>
+    const membersEl = document.getElementById('members');
+    const addBtn = document.getElementById('addMember');
+    const form = document.getElementById('familyForm');
+    const membersJsonEl = document.getElementById('membersJson');
+
+    let rowCounter = 0;
+
+    function createMemberRow(values = {}) {
+      const id = `row-${++rowCounter}`;
+      const wrapper = document.createElement('div');
+      wrapper.className = 'row';
+      wrapper.dataset.rowId = id;
+
+      wrapper.innerHTML = `
+        <input type="text" name="memberName" placeholder="Member name" value="${values.name ?? ''}" required />
+        <input type="number" name="memberAge" placeholder="Age" min="0" value="${values.age ?? ''}" required />
+        <select name="memberRelation" required>
+          <option value="" disabled ${values.relation ? '' : 'selected'}>Relation</option>
+          <option ${values.relation === 'Spouse' ? 'selected' : ''}>Spouse</option>
+          <option ${values.relation === 'Child' ? 'selected' : ''}>Child</option>
+          <option ${values.relation === 'Parent' ? 'selected' : ''}>Parent</option>
+          <option ${values.relation === 'Sibling' ? 'selected' : ''}>Sibling</option>
+          <option ${values.relation === 'Other' ? 'selected' : ''}>Other</option>
+        </select>
+        <button type="button" class="remove" aria-label="Remove member">✕</button>
+      `;
+
+      membersEl.appendChild(wrapper);
+    }
+
+    // Add first empty row on load (optional)
+    createMemberRow();
+
+    addBtn.addEventListener('click', () => createMemberRow());
+
+    // Event delegation for remove buttons
+    membersEl.addEventListener('click', (e) => {
+      if (e.target.classList.contains('remove')) {
+        const row = e.target.closest('.row');
+        if (row) row.remove();
+      }
+    });
+
+    // Before submit: gather rows -> JSON -> hidden input
+    form.addEventListener('submit', (e) => {
+      // Validate there’s at least one member
+      if (membersEl.querySelectorAll('.row').length === 0) {
+        e.preventDefault();
+        alert('Please add at least one member.');
+        return;
+      }
+
+      const members = Array.from(membersEl.querySelectorAll('.row')).map(row => {
+        const name = row.querySelector('input[name="memberName"]').value.trim();
+        const age = Number(row.querySelector('input[name="memberAge"]').value);
+        const relation = row.querySelector('select[name="memberRelation"]').value;
+        return { name, age, relation };
+      });
+
+      // Optional: simple validation
+      const invalid = members.some(m => !m.name || !m.relation || Number.isNaN(m.age));
+      if (invalid) {
+        e.preventDefault();
+        alert('Please fill all member fields correctly.');
+        return;
+      }
+
+      membersJsonEl.value = JSON.stringify(members);
+      // The form now includes: holderName + membersJson
+      // Proceed with normal submission (POST to /submit)
+    });
+
+    // Reset handler clears members and adds a fresh row
+    document.getElementById('resetForm').addEventListener('click', () => {
+      membersEl.innerHTML = '';
+      createMemberRow();
+      membersJsonEl.value = '';
+    });
+  </script>
+</body>
 </html>
