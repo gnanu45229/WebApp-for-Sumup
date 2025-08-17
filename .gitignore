@@ -60,3 +60,4 @@ replay_pid*
 .mvn
 .sumup-app-firebase-.json
 "src/main/resources/sumup-app-firebase-.json" 
+.gitattributes
