@@ -36,11 +36,12 @@ public class GroupsController {
 		groups.setAliasList(form.getAlias());
 		groups.setGroupName(form.getGroupName());
 		groups.setRoi(form.getRoi());
-		groups.setStrtDate(form.getStartDate());
+		groups.setStrtDate(form.getStartDate()); 
 		groups.setEndDate(form.getEndDate());
 		groups.setSumAmount(form.getSumAmount());
 		
 		//check members of the group
+		
 		
 		groupService.createGroup(groups);
 		

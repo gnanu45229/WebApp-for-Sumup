@@ -1,0 +1,45 @@
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-analytics.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+  const firebaseConfig = {
+     apiKey: "AIzaSyD1W-9eS3vJ8gu9bTkvYrK5vFiPQfbXI0Q",
+     authDomain: "sumup-app.firebaseapp.com",
+     projectId: "sumup-app",
+     storageBucket: "sumup-app.firebasestorage.app",
+     messagingSenderId: "512713320035",
+     appId: "1:512713320035:web:2e43ca82391aa76c94ba56",
+     measurementId: "G-VHHKDDR2LJ"
+   };
+    // Initialize Firebase
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  document.getElementById("loginBtn").addEventListener("click", () => {
+    signInWithPopup(auth, provider)
+      .then((result) => result.user.getIdToken())
+      .then((idToken) => {
+        return fetch("/auth/firebase", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: idToken })
+        });
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Backend verified:", data);
+        if (data.status === "success") {
+          window.location.href = data.redirect;  // go to dashboard.html
+        }
+      })
+      .catch((error) => console.error("Login failed:", error));
+  });
+
+</script>
+
+
+<button id="loginBtn">Login with Google</button>

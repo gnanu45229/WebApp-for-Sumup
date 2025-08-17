@@ -24,16 +24,21 @@ public class NavbarController {
 	
 	Logger logs = LoggerFactory.getLogger(NavbarController.class);
 
-	@GetMapping("/home")
-	public String home() {
-		return "NavBar"; 
-	}
 	@GetMapping("/login")
+	public String home() {
+		return "Index"; 
+	}
+	@GetMapping("/home")
 	public String login(Model userForm) {
 		userForm.addAttribute("userForm", new UserForm());
 		return "homepage"; 
 	}
-	
+	//navbar
+	@GetMapping("/navbar")
+	public String navbar(Model userForm) {
+		userForm.addAttribute("userForm", new UserForm());
+		return "Navbar"; 
+	}
 	
 	@GetMapping("/register")
 	public String register(Model userForm) {
